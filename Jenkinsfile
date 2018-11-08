@@ -1,6 +1,6 @@
 pipeline {
    
-    agent host01
+    agent any
 
     stages{
         stage('Build') {
