@@ -1,16 +1,17 @@
 {
-  "name": "bookstore",
+  "name": "eventmanager",
   "version": "1.0.0",
-  "description": "Simple bookstore app",
+  "description": "Simple event manager api",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies":{
-  	"express":"*",
-  	"body-parser":"*",
-  	"mongoose":"*"
+  "dependencies": {
+    "body-parser": "*",
+    "express": "*",
+    "mongodb-autoincrement": "^1.0.1",
+    "mongoose": "*"
   },
-  "author": "Brad Traversy",
+  "author": "all",
   "license": "ISC"
 }

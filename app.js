@@ -1,108 +1,170 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+var autoIncrement = require("mongodb-autoincrement");
+var mongoose = require('mongoose');
+mongoose.plugin(autoIncrement.mongoosePlugin);
 
-app.use(express.static(__dirname+'/client'));
+//app.use(express.static(__dirname+'/client'));
 app.use(bodyParser.json());
 
-Genre =require('./models/genre');
-Book =require('./models/book');
+Event =require('./models/event');
+
+Guest =require('./models/guest');
 
 // Connect to Mongoose
-mongoose.connect('mongodb://localhost/bookstore');
+mongoose.connect('mongodb://localhost/eventmanagerdb');
 var db = mongoose.connection;
 
 app.get('/', (req, res) => {
-	res.send('Please use /api/books or /api/genres');
+	res.send('Please use /events or /guests');
 });
 
-app.get('/api/genres', (req, res) => {
-	Genre.getGenres((err, genres) => {
+app.get('/guests', (req, res) => {
+	Guest.getGuests((err, guests) => {
 		if(err){
 			throw err;
 		}
-		res.json(genres);
+		res.json(guests);
 	});
 });
 
-app.post('/api/genres', (req, res) => {
-	var genre = req.body;
-	Genre.addGenre(genre, (err, genre) => {
+app.get('/guests/:_id', (req, res) => {
+	Guest.getGuestById(req.params._id, (err, guest) => {
 		if(err){
 			throw err;
 		}
-		res.json(genre);
+		res.json(guest);
 	});
 });
 
-app.put('/api/genres/:_id', (req, res) => {
+
+app.post('/guests', (req, res) => {
+	var guest = req.body;
+	Guest.addGuest(guest, (err, guest) => {
+		if(err){
+			throw err;
+		}
+		res.json(guest);
+	});
+});
+
+app.put('/guests/:_id', (req, res) => {
 	var id = req.params._id;
-	var genre = req.body;
-	Genre.updateGenre(id, genre, {}, (err, genre) => {
+	var guest = req.body;
+	Guest.updateGuest(id, guest, {}, (err, guest) => {
 		if(err){
 			throw err;
 		}
-		res.json(genre);
+		Guest.getGuestById(req.params._id, (err, event) => {
+			if(err){
+				throw err;
+			}
+			res.json(event);
+		});
 	});
 });
 
-app.delete('/api/genres/:_id', (req, res) => {
+app.delete('/guests/:_id', (req, res) => {
 	var id = req.params._id;
-	Genre.removeGenre(id, (err, genre) => {
+	Guest.removeGuest(id, (err, guest) => {
 		if(err){
 			throw err;
 		}
-		res.json(genre);
+		res.json(guest);
 	});
 });
 
-app.get('/api/books', (req, res) => {
-	Book.getBooks((err, books) => {
+
+
+app.get('/events', (req, res) => {
+	Event.getEvents((err, events) => {
 		if(err){
 			throw err;
 		}
-		res.json(books);
+		res.json(events);
 	});
 });
 
-app.get('/api/books/:_id', (req, res) => {
-	Book.getBookById(req.params._id, (err, book) => {
+app.get('/events/:_id', (req, res) => {
+	Event.getEventById(req.params._id, (err, event) => {
 		if(err){
 			throw err;
 		}
-		res.json(book);
+		res.json(event);
 	});
 });
 
-app.post('/api/books', (req, res) => {
-	var book = req.body;
-	Book.addBook(book, (err, book) => {
+app.get('/events/:_id/guests', (req, res) => {
+	Event.getEventById(req.params._id, (err, event) => {
 		if(err){
 			throw err;
 		}
-		res.json(book);
+		var guestList = [];
+			Guest.getGuestsById(event.guestsIds, (err, guests) => {
+				if(!err){
+					res.json(guests);
+				}					
+			});	
 	});
 });
 
-app.put('/api/books/:_id', (req, res) => {
+app.put('/events/:_id/guests', (req, res) => {
 	var id = req.params._id;
-	var book = req.body;
-	Book.updateBook(id, book, {}, (err, book) => {
+	var guestsIds = req.body;
+	Event.addGuests( id,guestsIds,{}, (err, guests) => {
 		if(err){
 			throw err;
 		}
-		res.json(book);
+		res.json(guests);
 	});
 });
 
-app.delete('/api/books/:_id', (req, res) => {
-	var id = req.params._id;
-	Book.removeBook(id, (err, book) => {
+app.delete('/events/:e_id/guests/:g_id', (req, res) => {
+	var eventID = req.params.e_id;
+	var guestID = req.params.g_id;
+	Event.deleteGuest( eventID,guestID,{}, (err, guests) => {
 		if(err){
 			throw err;
 		}
-		res.json(book);
+		res.json(guests);
+	});
+});
+
+
+app.post('/events', (req, res) => {
+	var event = req.body;
+	Event.createEvent(event, (err, event) => {
+		if(err){
+			throw err;
+		}
+		res.json(event);
+	});
+});
+
+app.put('/events/:_id', (req, res) => {
+	var id = req.params._id;
+	var event = req.body;
+	Event.updateEvent(id, event, {}, (err, event) => {
+		if(err){
+			throw err;
+		}
+		Event.getEventById(id, (err, event) => {
+			if(err){
+				throw err;
+			}
+			res.json(event);
+		});
+	});
+});
+
+app.delete('/events/:_id', (req, res) => {
+	var id = req.params._id;
+	Event.deleteEvent(id, (err, event) => {
+		if(err){
+			throw err;
+		}
+		res.json(event);
 	});
 });
 
