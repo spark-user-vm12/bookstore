@@ -13,7 +13,10 @@ Event =require('./models/event');
 Guest =require('./models/guest');
 
 // Connect to Mongoose
-mongoose.connect('mongodb://localhost/eventmanagerdb');
+//mongoose.connect('mongodb://localhost/eventmanagerdb');
+var mongodb_host = process.env.MONGODB_HOST || "localhost";
+var mongodb_port = process.env.MONGODB_PORT || 27017;
+mongoose.connect(`mongodb://${mongodb_host}:${mongodb_port}/eventmanagerdb`);
 var db = mongoose.connection;
 
 app.get('/', (req, res) => {
