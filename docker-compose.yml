@@ -7,8 +7,6 @@ services:
             - db-data:/data/db
       ports:
             - "27017:27017"
-      networks:
-            - backend
     nodeapp:
       image: node:10
       container_name: API
@@ -18,9 +16,18 @@ services:
             - "8080:3000"
       environment:
           - MONGODB_HOST=mongo
-      networks:
-          - backend
-
+    rabbitmq:
+      image: rabbitmq
+      container_name: RabbitMQ
+    mailservice:
+      image: node:10
+      container_name: MailingService
+      restart: always
+      build: ../mailservice
+      environment:
+            - MAILJET_API_KEY=9b4aeb504e6da585d2b7a4d1d2726903
+            - MAILJET_API_SECRET=6ff8b7084e24127847c20c4393859d8e
+            - RABBIT_HOST=rabbitmq
 volumes:
       db-data:
 networks:
