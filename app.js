@@ -4,8 +4,7 @@ const bodyParser = require('body-parser');
 var autoIncrement = require("mongodb-autoincrement");
 var mongoose = require('mongoose');
 mongoose.plugin(autoIncrement.mongoosePlugin);
-var os = require("os");
-var hostname = os.hostname();
+const mail_service = require('./mail-service/email-service');
 
 app.use(bodyParser.json());
 
@@ -127,22 +126,39 @@ app.get('/events/:_id/guests', (req, res) => {
 app.put('/events/:_id/guests', (req, res) => {
 	var id = req.params._id;
 	var guestsIds = req.body;
-	Event.addGuests( id,guestsIds,{}, (err, guests) => {
+	Event.addGuests( id,guestsIds,{}, (err, event) => {
 		if(err){
 			throw err;
 		}
-		res.json(guests);
+		guestsIds.forEach((guestID)=>{
+			Guest.getGuestById(guestID, (err, guest) => {
+				if(err){
+					throw err;
+				}
+				mail_service.alertAdded(guest);
+			});
+		});
+		res.json(event);
 	});
 });
 
 app.delete('/events/:e_id/guests/:g_id', (req, res) => {
 	var eventID = req.params.e_id;
 	var guestID = req.params.g_id;
-	Event.deleteGuest( eventID,guestID,{}, (err, guests) => {
+	Event.deleteGuest( eventID,guestID,{}, (err, event) => {
 		if(err){
 			throw err;
 		}
-		res.json(guests);
+
+		Guest.getGuestById(guestID, (err, guest) => {
+			if(err){
+				throw err;
+			}
+			console.log(guest);
+			mail_service.alertRemoved(guest);
+		});
+
+		res.json(event);
 	});
 });
 

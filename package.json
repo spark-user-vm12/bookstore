@@ -12,7 +12,8 @@
     "body-parser": "*",
     "express": "*",
     "mongodb-autoincrement": "^1.0.1",
-    "mongoose": "*"
+    "mongoose": "*",
+    "rabbit.js": "^0.4.4"
   },
   "author": "all",
   "license": "ISC"

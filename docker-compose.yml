@@ -10,7 +10,7 @@ services:
       networks:
             - backend
     nodeapp:
-      image: node:9
+      image: node:10
       container_name: API
       restart: always
       build: .

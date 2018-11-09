@@ -58,7 +58,7 @@ module.exports.deleteGuest = (eventID, guestID, options, callback) => {
 	}
 	Event.findOneAndUpdate(query, update, options, callback);
 */
-	Event.findOneAndUpdate({_id: eventID},{$pull: {guests:guestID}},{'new': true}, callback);
+	Event.findOneAndUpdate({_id: eventID},{$pull: {guests:guestID}},{}, callback);
 }
 
 // Get Guest Events
