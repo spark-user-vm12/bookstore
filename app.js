@@ -4,16 +4,15 @@ const bodyParser = require('body-parser');
 var autoIncrement = require("mongodb-autoincrement");
 var mongoose = require('mongoose');
 mongoose.plugin(autoIncrement.mongoosePlugin);
+var os = require("os");
+var hostname = os.hostname();
 
-//app.use(express.static(__dirname+'/client'));
 app.use(bodyParser.json());
 
-Event =require('./models/event');
-
-Guest =require('./models/guest');
+Guest = require('./models/guest');
+Event = require('./models/event');
 
 // Connect to Mongoose
-//mongoose.connect('mongodb://localhost/eventmanagerdb');
 var mongodb_host = process.env.MONGODB_HOST || "localhost";
 var mongodb_port = process.env.MONGODB_PORT || 27017;
 mongoose.connect(`mongodb://${mongodb_host}:${mongodb_port}/eventmanagerdb`);
@@ -40,6 +39,16 @@ app.get('/guests/:_id', (req, res) => {
 		res.json(guest);
 	});
 });
+
+app.get('/guests/:_id/events', (req, res) => {
+	Event.getGuestEvents(req.params._id,{}, (err, events) => {
+		if(err){
+			throw err;
+		}
+		res.json(events);
+	});
+});
+
 
 
 app.post('/guests', (req, res) => {
@@ -78,13 +87,12 @@ app.delete('/guests/:_id', (req, res) => {
 	});
 });
 
-
-
 app.get('/events', (req, res) => {
 	Event.getEvents((err, events) => {
 		if(err){
 			throw err;
 		}
+		genGuestRoutes(events,req.headers.host);
 		res.json(events);
 	});
 });
@@ -94,6 +102,7 @@ app.get('/events/:_id', (req, res) => {
 		if(err){
 			throw err;
 		}
+		genGuestRoutes([event],req.headers.host);
 		res.json(event);
 	});
 });
@@ -103,12 +112,15 @@ app.get('/events/:_id/guests', (req, res) => {
 		if(err){
 			throw err;
 		}
-		var guestList = [];
-			Guest.getGuestsById(event.guestsIds, (err, guests) => {
-				if(!err){
-					res.json(guests);
-				}					
-			});	
+		/*
+		Guest.getGuestsById(event.guests, (err, guests) => {
+			if(!err){
+				res.json(guests);
+			}					
+		});	
+		*/
+		genGuestRoutes([event],req.headers.host);
+		res.json(event.guests);
 	});
 });
 
@@ -172,4 +184,18 @@ app.delete('/events/:_id', (req, res) => {
 });
 
 app.listen(3000);
-console.log('Running on port 3000...');
+console.log('App up and Running on port 3000...');
+
+function genRoute(host,route,id){
+	return `http://${host}/${route}/${id}`;
+}
+
+function genGuestRoutes(events,host){
+	events.forEach(event => {
+		var routes = event.guests.map((guestID)=>{
+			return genRoute(host,'guests',guestID)
+		});
+		event.guests = routes;	
+	});
+	return events;
+}

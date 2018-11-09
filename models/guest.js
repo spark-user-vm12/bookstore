@@ -13,9 +13,6 @@ const guestSchema = mongoose.Schema({
 	email:{
 		type: String,
 		required: true
-	},
-	eventIds:{
-		type:Array
 	}
 });	
 

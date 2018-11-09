@@ -4,7 +4,7 @@ services:
       container_name: DATABASE
       image: mongo
       volumes:
-            - ./data:/data/db
+            - db-data:/data/db
       ports:
             - "27017:27017"
       networks:
@@ -20,5 +20,8 @@ services:
           - MONGODB_HOST=mongo
       networks:
           - backend
+
+volumes:
+      db-data:
 networks:
-    backend:
+      backend:

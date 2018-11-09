@@ -18,13 +18,9 @@ const eventSchema = mongoose.Schema({
 		type: Date,
 		required: true
 	},
-	guestsList:{
+	guests:{
 		type: Array
-	},
-	guestsIds:{
-		type:Array
 	}
-
 });
 
 const Event = module.exports = mongoose.model('Event', eventSchema);
@@ -48,7 +44,7 @@ module.exports.createEvent = (event, callback) => {
 module.exports.addGuests = (id, guestsIds, options, callback) => {
 	var query = {_id: id};
 	var update = {
-		$push: {guestsIds:guestsIds}
+		$push: {guests:guestsIds}
 	}
 	Event.findOneAndUpdate(query, update, options, callback);
 }
@@ -62,11 +58,19 @@ module.exports.deleteGuest = (eventID, guestID, options, callback) => {
 	}
 	Event.findOneAndUpdate(query, update, options, callback);
 */
-	Event.update(
-		{_id:eventID},
-		{$pull:{guestsIds:guestID}},
-		{}
-	, callback);
+	Event.findOneAndUpdate({_id: eventID},{$pull: {guests:guestID}},{'new': true}, callback);
+}
+
+// Get Guest Events
+module.exports.getGuestEvents = (guestID, options, callback) => {
+	/*
+	var query = {_id: eventID};
+	var update = {
+		$pull: {guestsIds:guestID}
+	}
+	Event.findOneAndUpdate(query, update, options, callback);
+*/
+	Event.find({guests: guestID}, callback);
 }
 
 
