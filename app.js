@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-var autoIncrement = require("mongodb-autoincrement");
+//var autoIncrement = require("mongodb-autoincrement");
 var mongoose = require('mongoose');
-mongoose.plugin(autoIncrement.mongoosePlugin);
+//mongoose.plugin(autoIncrement.mongoosePlugin);
 const mail_service = require('./mail-service/email-service');
 
 app.use(bodyParser.json());
